@@ -6,19 +6,24 @@ import wx
 import wx.lib.scrolledpanel
 from PIL import Image
 import cv2
+import re
 
 class setConfig(wx.Frame):
     def __init__(self, parent):
         super(setConfig, self).__init__(parent, title = "setConfig")
         self.Maximize(True)
         ### variable ###
+        self.cap = cv2.VideoCapture(0)
+        _, self.frame = self.cap.read()
         self.debug = False
         self.position_1_value = [float(), float()]
         self.position_2_value = [float(), float()]
         self.position_3_value = [float(), float()]
         self.position_4_value = [float(), float()]
+        self.image_hight_value = int()
+        self.image_low_value = int()
         self.position_exchange_count = 0
-        self.image_path = "../res/perspective.jpg"
+        self.image_path = "../res/test_main.jpg"
         self.offset_width = self.setWidthOffset()
         self.offset_height = 0
 
@@ -31,9 +36,6 @@ class setConfig(wx.Frame):
         self.image_panel.SetupScrolling()
         # set image
         self.image_ctrl = wx.StaticBitmap(self.image_panel)
-        self.img = wx.Image(self.image_path, wx.BITMAP_TYPE_ANY)
-        self.image_ctrl.SetBitmap(wx.BitmapFromImage(self.img))
-        self.image_panel.Layout()
         # set boxsizer
         self.image_sizer = wx.BoxSizer(wx.VERTICAL)
         # set preivew image
@@ -48,6 +50,9 @@ class setConfig(wx.Frame):
         # set position_2 text
         self.position_2 = wx.StaticText(self.image_panel, label = "右上座標")
         self.hbox1.Add(self.position_2,1,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,5)
+        # set text image hight
+        self.image_hight = wx.TextCtrl(self.image_panel, -1, '0', size=(230, -1), style=wx.TE_RIGHT | wx.TE_PROCESS_ENTER) 
+        self.hbox1.Add(self.image_hight,1,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,5)
         # set hbox2
         self.hbox2 = wx.BoxSizer(wx.HORIZONTAL) 
         self.image_sizer.Add(self.hbox2 , 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
@@ -57,25 +62,76 @@ class setConfig(wx.Frame):
         # set position_4 text
         self.position_4 = wx.StaticText(self.image_panel, label = "右下座標")
         self.hbox2.Add(self.position_4,1,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,5)
-        # set buttom perspective
-        self.buttom_perspective = wx.ToggleButton(self.image_panel, -1, "Perspective") 
-        self.image_sizer.Add(self.buttom_perspective, 0, wx.EXPAND|wx.ALIGN_CENTER) 
+        # set text image low
+        self.image_low = wx.TextCtrl(self.image_panel, -1, '0', size=(230, -1), style=wx.TE_RIGHT | wx.TE_PROCESS_ENTER) 
+        self.hbox2.Add(self.image_low,1,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,5)
+        # set buttom refresh
+        self.buttom_refresh = wx.ToggleButton(self.image_panel, -1, "Refresh")
+        self.image_sizer.Add(self.buttom_refresh, 0, wx.EXPAND|wx.ALIGN_CENTER)
+        # set buttom set image
+        self.buttom_set_image = wx.ToggleButton(self.image_panel, -1, "Set")
+        self.image_sizer.Add(self.buttom_set_image, 0, wx.EXPAND|wx.ALIGN_CENTER)
+        # set buttom start
+        self.buttom_start = wx.ToggleButton(self.image_panel, -1, "Start")
+        self.image_sizer.Add(self.buttom_start, 0, wx.EXPAND|wx.ALIGN_CENTER)
         # frame sizer
         self.frame_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.frame_sizer.Add(self.image_panel, proportion=1, flag=wx.EXPAND | wx.ALL)
         self.frame_panel.SetSizer(self.frame_sizer)
 
         ### logic ###
+        self.showImage()
         self.image_ctrl.Bind(wx.EVT_LEFT_UP, self.ImageCtrlOnMouseClick)
         self.image_ctrl.Bind(wx.EVT_SIZE, self.windowResizeCallback)
-        self.buttom_perspective.Bind(wx.EVT_TOGGLEBUTTON, self.perspective)
+        self.buttom_refresh.Bind(wx.EVT_LEFT_UP, self.showRefresh)
+        self.buttom_set_image.Bind(wx.EVT_LEFT_UP, self.showSetImage)
+        self.image_hight.Bind(wx.EVT_KEY_UP, self.setImageHight)
+        self.image_low.Bind(wx.EVT_KEY_UP, self.setImageLow)
+        self.buttom_start.Bind(wx.EVT_LEFT_UP, self.startTracker)
 
         return
 
+    def setImageHight(self, event):
+        value = self.image_hight.GetValue()
+        if re.search('\d+', value) != None:
+            self.image_hight_value = int(value)
+        else:
+            self.image_hight_value = 0
+        print("hight", self.image_hight_value)
+
+    def setImageLow(self, event):
+        value = self.image_low.GetValue()
+        if re.search('\d+', value) != None:
+            self.image_low_value = int(value)
+        else:
+            self.image_low_value = 0
+        print(self.image_low_value)
+
+    def showRefresh(self, event):
+        self.getNewImage()
+        self.showImage()
+
+    def showSetImage(self, event):
+        self.tracker()
+        self.showImage()
+
+    def getNewImage(self):
+        _, self.frame = self.cap.read()
+
+    def showImage(self):
+        height,width = self.frame.shape[:2]
+        image = wx.Bitmap.FromBuffer(width, height, self.BGR_to_RGB(self.frame))
+        self.image_ctrl.SetBitmap(image)
+        self.image_panel.Layout()
+
+    def BGR_to_RGB(self, image):
+        (B,G,R) = cv2.split(image)
+        image=cv2.merge([R,G,B])
+        return image
+
     def setWidthOffset(self):
         window_width, _ = self.GetSize()
-        with Image.open(self.image_path) as img:
-            image_width, _ = img.size
+        _, image_width, _ = self.frame.shape
         return (window_width - image_width) / 2 - 10
 
     def windowResizeCallback(self, event):
@@ -102,13 +158,15 @@ class setConfig(wx.Frame):
             self.position_4_value = [relative_pos_x, relative_pos_y]
         self.position_exchange_count = 0 if self.position_exchange_count >= 3 else self.position_exchange_count + 1
 
-    def perspective(self, event):
-        processImageObject.perspective(
-            cv2.imread(self.image_path),
-            tuple(self.position_1_value),
-            tuple(self.position_2_value),
-            tuple(self.position_3_value),
-            tuple(self.position_4_value),
+    def tracker(self):
+        self.cnts, self.frame = processImageObject.controllerTracker(
+            frame=self.frame,
+            position_1=tuple(self.position_1_value),
+            position_2=tuple(self.position_2_value),
+            position_3=tuple(self.position_3_value),
+            position_4=tuple(self.position_4_value),
+            low=self.image_low_value,
+            hight=self.image_hight_value,
             debug = self.debug
         )
 
@@ -116,6 +174,6 @@ if __name__ == '__main__':
     processImageObject = processImage()
 
     app = wx.PySimpleApp()
-    frame = setConfig(None)
-    frame.Show()
+    window = setConfig(None)
+    window.Show()
     app.MainLoop()
