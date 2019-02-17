@@ -10,7 +10,7 @@ Keras-Preprocessing 1.0.5
 tensorboard         1.8.0  
 tensorflow          1.8.0  
 ------------------------------  
-訓練時的須執行內容與順序  
+#訓練時的須執行內容與順序  
 wget https://pjreddie.com/media/files/yolov3.weights  
 cd VOCdevkit/VOC2007  
 python make_main_txt.py  

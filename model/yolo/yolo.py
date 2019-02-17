@@ -151,7 +151,7 @@ class YOLO(object):
             left = max(0, np.floor(left + 0.5).astype('int32'))
             bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
             right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
-            get_center_oint(left,top,right,bottom)
+            get_center_point(left,top,right,bottom)
             print(label, (left, top), (right, bottom))
 
             if top - label_size[1] >= 0:
@@ -218,7 +218,7 @@ def detect_video(yolo, video_path, output_path=""):
             break
     yolo.close_session()
 
-def get_center_oint(left,top,right,buttom):#取得該辨識物品中間座標，須獲得該物品左上角座標與右下角座標
+def get_center_point(left,top,right,buttom):#取得該辨識物品中間座標，須獲得該物品左上角座標與右下角座標
     global centerXPoint#全域變數:辨識物品中間X座標
     global centerYPoint#全域變數:辨識物品中間Y座標
     startPoint=np.array([left,top])#---------------------------------
