@@ -1,0 +1,26 @@
+<annotation>
+	<folder>JPEGImages</folder>
+	<filename>Yu Xiang1_181014_0002.jpg</filename>
+	<path>C:\pythonwork\keras-yolo3-master\VOC\JPEGImages\Yu Xiang1_181014_0002.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1773</width>
+		<height>2364</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>first</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>221</xmin>
+			<ymin>481</ymin>
+			<xmax>1333</xmax>
+			<ymax>2296</ymax>
+		</bndbox>
+	</object>
+</annotation>

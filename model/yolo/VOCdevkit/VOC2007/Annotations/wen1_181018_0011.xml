@@ -1,0 +1,26 @@
+<annotation>
+	<folder>JPEGImages</folder>
+	<filename>wen1_181018_0011.jpg</filename>
+	<path>C:\pythonwork\keras-yolo3-master\VOC\JPEGImages\wen1_181018_0011.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1536</width>
+		<height>2730</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>first</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>284</xmin>
+			<ymin>901</ymin>
+			<xmax>1158</xmax>
+			<ymax>2630</ymax>
+		</bndbox>
+	</object>
+</annotation>
