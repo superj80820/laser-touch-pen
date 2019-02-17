@@ -6,9 +6,10 @@ from yolo.yolo import decect_mydata as yolo_run
 class handDetection(object):
     def __init__(self, image_path):
         self.image_path = image_path
+        yolo_set()
+
 
     def detection(self):
-        yolo_set()
         outPut=yolo_run('model/yolo/testImgPlace/img.jpg')
         #測試時使用yolo內部我放置的刀子圖片，訓練完成後將修改為self
         yoloResult=outPut[0]
