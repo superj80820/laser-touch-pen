@@ -16,7 +16,7 @@ from keras.layers import Input
 from PIL import Image, ImageFont, ImageDraw
 
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))#將位置導向現在的目錄
 from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
 from yolo3.utils import letterbox_image
 import os
