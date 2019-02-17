@@ -1,0 +1,26 @@
+<annotation>
+	<folder>JPEGImages</folder>
+	<filename>Han3_181017_0027.jpg</filename>
+	<path>C:\pythonwork\keras-yolo3-master\VOC\JPEGImages\Han3_181017_0027.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1773</width>
+		<height>2364</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>third</name>
+		<pose>Unspecified</pose>
+		<truncated>1</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>132</xmin>
+			<ymin>548</ymin>
+			<xmax>1432</xmax>
+			<ymax>2364</ymax>
+		</bndbox>
+	</object>
+</annotation>
