@@ -2,11 +2,14 @@
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from model.processImage import processImage
+from model.controlMouse import controlMouse
 import wx
 import wx.lib.scrolledpanel
 from PIL import Image
 import cv2
 import re
+import threading
+import math
 
 class setConfig(wx.Frame):
     def __init__(self, parent):
@@ -112,8 +115,15 @@ class setConfig(wx.Frame):
         self.showImage()
 
     def showSetImage(self, event):
-        self.tracker()
+        self.setFrame(self.tracker())
+        self.setPreviewImage()
         self.showImage()
+
+    def setPreviewImage(self):
+        self.frame = processImageObject.getSetPreviewImage(self.frame)
+
+    def setFrame(self, frame):
+        self.frame = frame
 
     def getNewImage(self):
         _, self.frame = self.cap.read()
@@ -159,7 +169,7 @@ class setConfig(wx.Frame):
         self.position_exchange_count = 0 if self.position_exchange_count >= 3 else self.position_exchange_count + 1
 
     def tracker(self):
-        self.cnts, self.frame = processImageObject.controllerTracker(
+        self.center, frame = processImageObject.controllerTracker(
             frame=self.frame,
             position_1=tuple(self.position_1_value),
             position_2=tuple(self.position_2_value),
@@ -169,9 +179,22 @@ class setConfig(wx.Frame):
             hight=self.image_hight_value,
             debug = self.debug
         )
+        return frame
+
+    def trackerControlMouse(self):
+        while True:
+            self.getNewImage()
+            self.tracker()
+            print(self.center)
+            controlMouseObject.click(self.center)
+
+    def startTracker(self, event):
+        t = threading.Thread(target = self.trackerControlMouse)
+        t.start()
 
 if __name__ == '__main__':
     processImageObject = processImage()
+    controlMouseObject = controlMouse()
 
     app = wx.PySimpleApp()
     window = setConfig(None)

@@ -1,9 +1,12 @@
 import cv2
 import numpy as np
 from collections import deque
+import win32api
 
 class processImage(object):
     def __init__(self):
+        self.width = win32api.GetSystemMetrics(0)
+        self.hight = win32api.GetSystemMetrics(1)
         lower_upper = {
             "green": {"lower": [110, 50, 50], "upper": [130, 255, 255]},
             "puple": {"lower": [300, 62, 46], "upper": [326, 93, 99]},
@@ -13,6 +16,7 @@ class processImage(object):
         }
         self.Lower = np.array(lower_upper["red"]["lower"])
         self.Upper = np.array(lower_upper["red"]["upper"])
+        self.pts = deque(maxlen=5)
 
     def controllerTracker(self, *args, **kwargs):
         debug = False if kwargs.get("debug") in [None, False] else True
@@ -21,6 +25,13 @@ class processImage(object):
         frame = self.perspective(kwargs["frame"], kwargs["position_1"], kwargs["position_2"], kwargs["position_3"], kwargs["position_4"], debug=debug)
         frame = self.laserTracking(frame, low=kwargs.get("low"), hight=kwargs.get("hight"), debug=debug)
         return frame
+
+    def refreshScreenSize(self):
+        self.width = win32api.GetSystemMetrics(0)
+        self.hight = win32api.GetSystemMetrics(1)
+
+    def getScreenSize(self):
+        return self.width, self.hight
 
     def perspective(self, frame, position_1, position_2, position_3, position_4, debug=False):
         height, width, _ = frame.shape
@@ -42,6 +53,7 @@ class processImage(object):
         return result
 
     def laserTracking(self, frame, low=200, hight=255,debug=False):
+        frame = cv2.resize(frame, (self.width, self.hight)) 
         color_mode=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         kernel=np.ones((1,1),np.uint8)
         mask=cv2.inRange(color_mode, low, hight)
@@ -52,16 +64,16 @@ class processImage(object):
         res=cv2.bitwise_and(frame,frame,mask=mask)
         cnts,heir=cv2.findContours(mask.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[-2:]
         center = None
+        if len(cnts) > 0:
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+        else:
+            center = None
 
         if debug == True:
-            self.pts = deque(maxlen=64)
-
             if len(cnts) > 0:
-                c = max(cnts, key=cv2.contourArea)
-                ((x, y), radius) = cv2.minEnclosingCircle(c)
-                M = cv2.moments(c)
-                center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-        
                 if radius > 5:
                     cv2.circle(frame, (int(x), int(y)), int(radius),(0, 255, 255), 2)
                     cv2.circle(frame, center, 5, (0, 0, 255), -1)
@@ -77,5 +89,7 @@ class processImage(object):
             cv2.imshow("Frame", frame)
             cv2.imshow("mask",mask)
             cv2.imshow("res",res)
+        return center, res
 
-        return cnts, res
+    def getSetPreviewImage(self, frame):
+        return cv2.resize(frame, (600, 480)) 
