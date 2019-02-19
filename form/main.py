@@ -53,7 +53,7 @@ class setConfig(wx.Frame):
         # set position_2 text
         self.position_2 = wx.StaticText(self.image_panel, label = "右上座標")
         self.hbox1.Add(self.position_2,1,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,5)
-        # set text image hight
+        # set input image hight
         self.image_hight = wx.TextCtrl(self.image_panel, -1, '0', size=(230, -1), style=wx.TE_RIGHT | wx.TE_PROCESS_ENTER) 
         self.hbox1.Add(self.image_hight,1,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,5)
         # set hbox2
@@ -65,12 +65,15 @@ class setConfig(wx.Frame):
         # set position_4 text
         self.position_4 = wx.StaticText(self.image_panel, label = "右下座標")
         self.hbox2.Add(self.position_4,1,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,5)
-        # set text image low
+        # set input image low
         self.image_low = wx.TextCtrl(self.image_panel, -1, '0', size=(230, -1), style=wx.TE_RIGHT | wx.TE_PROCESS_ENTER) 
         self.hbox2.Add(self.image_low,1,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,5)
         # set buttom refresh
         self.buttom_refresh = wx.ToggleButton(self.image_panel, -1, "Refresh")
         self.image_sizer.Add(self.buttom_refresh, 0, wx.EXPAND|wx.ALIGN_CENTER)
+        # set buttom perspective image
+        self.buttom_perspective_image = wx.ToggleButton(self.image_panel, -1, "Perspective")
+        self.image_sizer.Add(self.buttom_perspective_image, 0, wx.EXPAND|wx.ALIGN_CENTER)
         # set buttom set image
         self.buttom_set_image = wx.ToggleButton(self.image_panel, -1, "Set")
         self.image_sizer.Add(self.buttom_set_image, 0, wx.EXPAND|wx.ALIGN_CENTER)
@@ -84,15 +87,28 @@ class setConfig(wx.Frame):
 
         ### logic ###
         self.showImage()
-        self.image_ctrl.Bind(wx.EVT_LEFT_UP, self.ImageCtrlOnMouseClick)
+        self.image_ctrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrlOnMouseClick)
         self.image_ctrl.Bind(wx.EVT_SIZE, self.windowResizeCallback)
-        self.buttom_refresh.Bind(wx.EVT_LEFT_UP, self.showRefresh)
-        self.buttom_set_image.Bind(wx.EVT_LEFT_UP, self.showSetImage)
+        self.buttom_perspective_image.Bind(wx.EVT_LEFT_DOWN, self.showPerspective)
+        self.buttom_refresh.Bind(wx.EVT_LEFT_DOWN, self.showRefresh)
+        self.buttom_set_image.Bind(wx.EVT_LEFT_DOWN, self.showSetImage)
         self.image_hight.Bind(wx.EVT_KEY_UP, self.setImageHight)
         self.image_low.Bind(wx.EVT_KEY_UP, self.setImageLow)
-        self.buttom_start.Bind(wx.EVT_LEFT_UP, self.startTracker)
+        self.buttom_start.Bind(wx.EVT_LEFT_DOWN, self.startTracker)
 
         return
+
+    def showPerspective(self, evnet):
+        self.frame = processImageObject.perspective(
+            frame=self.frame,
+            position_1=tuple(self.position_1_value),
+            position_2=tuple(self.position_2_value),
+            position_3=tuple(self.position_3_value),
+            position_4=tuple(self.position_4_value),
+            debug = self.debug
+        )
+        self.setPreviewImage()
+        self.showImage()
 
     def setImageHight(self, event):
         value = self.image_hight.GetValue()
@@ -108,22 +124,24 @@ class setConfig(wx.Frame):
             self.image_low_value = int(value)
         else:
             self.image_low_value = 0
-        print(self.image_low_value)
+        print("low", self.image_low_value)
 
     def showRefresh(self, event):
         self.getNewImage()
         self.showImage()
 
     def showSetImage(self, event):
-        self.setFrame(self.tracker())
+        _, self.frame = processImageObject.laserTracking(
+            frame=self.frame,
+            low=self.image_low_value,
+            hight=self.image_hight_value,
+            debug = self.debug
+        )
         self.setPreviewImage()
         self.showImage()
 
     def setPreviewImage(self):
         self.frame = processImageObject.getSetPreviewImage(self.frame)
-
-    def setFrame(self, frame):
-        self.frame = frame
 
     def getNewImage(self):
         _, self.frame = self.cap.read()
@@ -185,7 +203,6 @@ class setConfig(wx.Frame):
         while True:
             self.getNewImage()
             self.tracker()
-            print(self.center)
             controlMouseObject.click(self.center)
 
     def startTracker(self, event):

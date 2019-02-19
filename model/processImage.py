@@ -20,8 +20,6 @@ class processImage(object):
 
     def controllerTracker(self, *args, **kwargs):
         debug = False if kwargs.get("debug") in [None, False] else True
-        print('low', kwargs.get("low"))
-        print('hight', kwargs.get("hight"))
         frame = self.perspective(kwargs["frame"], kwargs["position_1"], kwargs["position_2"], kwargs["position_3"], kwargs["position_4"], debug=debug)
         frame = self.laserTracking(frame, low=kwargs.get("low"), hight=kwargs.get("hight"), debug=debug)
         return frame
@@ -52,10 +50,10 @@ class processImage(object):
 
         return result
 
-    def laserTracking(self, frame, low=200, hight=255,debug=False):
-        frame = cv2.resize(frame, (self.width, self.hight)) 
+    def laserTracking(self, frame, ones=1, low=200, hight=255,debug=False):
+        frame = cv2.resize(frame, (self.width, self.hight))
         color_mode=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-        kernel=np.ones((1,1),np.uint8)
+        kernel=np.ones((ones, ones),np.uint8)
         mask=cv2.inRange(color_mode, low, hight)
         mask = cv2.erode(mask, kernel, iterations=2)
         mask=cv2.morphologyEx(mask,cv2.MORPH_OPEN,kernel)
@@ -68,7 +66,10 @@ class processImage(object):
             c = max(cnts, key=cv2.contourArea)
             ((x, y), radius) = cv2.minEnclosingCircle(c)
             M = cv2.moments(c)
-            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+            if M["m00"] != 0:
+                center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+            else: # Edge screen case
+                center = (self.width, self.hight)
         else:
             center = None
 
