@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 from PIL import Image
 import matplotlib.image as mpimg
+import wx
+import wx.lib.scrolledpanel
 
 class discussFigure(object):
     def __init__(self):
@@ -25,8 +27,33 @@ class discussFigure(object):
         plt.axis('equal') # Equal aspect ratio
         plt.show()
 
-    def discussImage(self, image_path):
-        figManager = plt.get_current_fig_manager()
-        figManager.window.showMaximized()
-        img = mpimg.imread(image_path)
-        plt.imshow(img)
+    def discussImage(self, image_path, word):
+        class discussImageForm(wx.Frame):
+            def __init__(self, parent, image_path, word):
+                super(discussImageForm, self).__init__(parent, title = "討論", style=wx.DEFAULT_FRAME_STYLE, size=(300, 80))
+                self.Maximize(True)
+                ### variable ###
+
+                ### layout ###
+                self.panel = wx.Panel(self, wx.ID_ANY)
+                mastersizer = wx.BoxSizer(wx.VERTICAL)
+                self.image = wx.StaticBitmap(self.panel, -1, wx.Bitmap(image_path, wx.BITMAP_TYPE_ANY))
+                self.class_number = wx.StaticText(self.panel, label = word)
+                self.class_number.SetFont(wx.Font(30, wx.DECORATIVE, wx.NORMAL, wx.NORMAL))
+                
+                # Additional object
+                mastersizer.Add(self.image, 1, wx.ALIGN_CENTRE_HORIZONTAL)
+                mastersizer.Add(self.class_number, 1, wx.ALIGN_CENTRE_HORIZONTAL)
+                self.panel.SetSizer(mastersizer)
+                self.Centre()
+                self.Show()
+
+                ### logic ###
+
+                return
+
+        app = wx.PySimpleApp()
+        class_number_window = discussImageForm(None, image_path, word)
+        class_number_window.Show()
+        app.MainLoop()
+
