@@ -23,8 +23,8 @@ class TestStringMethods(unittest.TestCase):
 
     def test_discussImage(self):
         print(self._testMethodName)
-        image_path = "../res/test.jpg"
-        self.discussFigureModel.discussImage(image_path)
+        image_path = "../res/perspective.jpg"
+        self.discussFigureModel.discussImage(image_path, "請問你這裡的理論是甚麼?")
 
 if __name__ == '__main__':
     unittest.main()
