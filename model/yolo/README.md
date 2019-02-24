@@ -28,7 +28,7 @@ pip install opencv-python
 pip install Keras==2.2.4
 pip install tensorflow-gpu==1.8.0  
 pip install pillow  
-先下載這個https://drive.google.com/open?id=1qALJtHL4B1PiBhtFdyQQaXLI_5qtvKH2，放置於model\yolo\VOCdevkit直接覆蓋VOC2007 
+先下載這個https://drive.google.com/open?id=1qALJtHL4B1PiBhtFdyQQaXLI_5qtvKH2 放置於model\yolo\VOCdvkit直接覆蓋VOC2007  
 wget https://pjreddie.com/media/files/yolov3.weights  
 cd VOCdevkit/VOC2007  
 python make_main_txt.py  
