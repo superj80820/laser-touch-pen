@@ -2,6 +2,8 @@
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from model.websocketClient import websocketClient
+from model.discussFigure import discussFigure
+import threading
 import wx
 import wx.lib.scrolledpanel
 
@@ -10,7 +12,10 @@ class keybaord(wx.Frame):
         super(keybaord, self).__init__(parent, title = "keybaord", style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP, size=(420, 290))
         ### variable ###
         self.websocketClientModel = websocketClient("123456")
+        self.discussFigureModel = discussFigure()
         self.websocketClientModel.emit("create_room", self.websocketClientModel.getRoomId())
+        t = threading.Thread(target = self.websocketClientModel.thread)
+        t.start()
 
         ### layout ###
         self.panel = wx.Panel(self, wx.ID_ANY)
@@ -29,10 +34,10 @@ class keybaord(wx.Frame):
         btn_2_d = wx.Button(self.panel, id=9, label='d', size=(80, 80))
         btn_2_e = wx.Button(self.panel, id=10, label='d', size=(80, 80))
         btn_3_a = wx.Button(self.panel, id=11, label='發作業', size=(80, 80))
-        btn_3_b = wx.Button(self.panel, id=12, label='b', size=(80, 80))
+        btn_3_b = wx.Button(self.panel, id=12, label='點名', size=(80, 80))
         btn_3_c = wx.Button(self.panel, id=13, label='c', size=(80, 80))
         btn_3_d = wx.Button(self.panel, id=14, label='d', size=(80, 80))
-        btn_3_e = wx.Button(self.panel, id=15, label='d', size=(80, 80))
+        btn_3_e = wx.Button(self.panel, id=15, label='結束', size=(80, 80))
         # Additional object
         btnsizer_1.Add(btn_1_a, 0)
         btnsizer_1.Add(btn_1_b, 0)
@@ -58,9 +63,25 @@ class keybaord(wx.Frame):
 
         ### logic ###
         def send2Audience(event, room_id=self.websocketClientModel.getRoomId()):
-            self.websocketClientModel.send2Audience(room_id)
+            t = threading.Thread(target = self.websocketClientModel.send2Audience, args=(room_id,))
+            t.start()
+
+        def rollCall(event):
+            self.websocketClientModel.rollCall()
+            resp = self.websocketClientModel.waitRollCallTrigger()
+            with open("roll_call.txt", "w") as f:
+                for item in resp[0]["members"]:
+                    f.write(item)
+            present = {"name": "present", "value": resp[0]["arrive_members"]}
+            late = {"name": "late", "value": resp[0]["not_arrive_members"]}
+            self.discussFigureModel.rollCall(present, late)
+
+        def clientThreadStop(event):
+            self.websocketClientModel.threadStop()
 
         btn_3_a.Bind(wx.EVT_LEFT_DOWN, send2Audience)
+        btn_3_b.Bind(wx.EVT_LEFT_DOWN, rollCall)
+        btn_3_e.Bind(wx.EVT_LEFT_DOWN, clientThreadStop)
 
         return
 

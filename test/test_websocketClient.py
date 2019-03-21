@@ -33,7 +33,7 @@ class TestStringMethods(unittest.TestCase):
 
     def test_rollCall(self):
         self.websocketClientModel.emit("create_room", self.websocketClientModel.getRoomId())
-        self.websocketClientModel.emit("rollCall", {"room_id": self.websocketClientModel.getRoomId()})
+        self.websocketClientModel.rollCall()
         self.websocketClientModel.thread()
 
 if __name__ == '__main__':

@@ -18,14 +18,19 @@ class discussFigure(object):
         plt.legend()
         plt.show()
 
-    def rollCall(self, present, absent, late, excused):
-        labels = ["present", "absent", "late", "excused"]
-        sizes = [present["value"], absent["value"], late["value"], excused["value"]]
-        explode = (0, 0.1, 0, 0) 
-
-        plt.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
+    def rollCall(self, present, late):
+        def make_autopct(values):
+            def my_autopct(pct):
+                total = sum(values)
+                val = int(round(pct*total/100.0))
+                return '{p:.2f}%  ({v:d})'.format(p=pct,v=val)
+            return my_autopct
+        labels = ["present", "late"]
+        sizes = [present["value"], late["value"]]
+        explode = (0, 0.1)
+        plt.pie(sizes, explode=explode, labels=labels, autopct=make_autopct(sizes), shadow=True, startangle=90)
         plt.axis('equal') # Equal aspect ratio
-        plt.show()
+        plt.show(block=False)
 
     def discussImage(self, image_path, word):
         class discussImageForm(wx.Frame):
