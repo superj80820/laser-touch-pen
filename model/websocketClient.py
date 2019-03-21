@@ -10,7 +10,6 @@ import time
 
 class websocketClient(object):
     def __init__(self, room_id=None):
-        self.discussFigureModel = discussFigure()
         url = 'localhost'
         port = 5000
         self.socketIO = SocketIO(url, port, LoggingNamespace)
@@ -20,6 +19,7 @@ class websocketClient(object):
         self.vote_id = None
         self.thread_running = True
         self.rollCallTriggerAndRes = False
+        self.voteStopTriggerAndRes = False
         print("websocketClient is running url: %s, port: %s, room_id: %s" %(url, port, room_id))
 
     def emit(self, on_content, value=None):
@@ -49,9 +49,13 @@ class websocketClient(object):
         def rollCall_response(*args):
             print(args)
             self.rollCallTriggerAndRes = args
+        def vote_response(*args):
+            print(args)
+            self.voteStopTriggerAndRes = args
         while self.thread_running:
             self.socketIO.on('screenshop_requests', screenshop_requests)
             self.socketIO.on('rollCall_response', rollCall_response)
+            self.socketIO.on('vote_response', vote_response)
             self.socketIO.wait(seconds=3)
         return
 
@@ -65,6 +69,13 @@ class websocketClient(object):
         self.rollCallTriggerAndRes = False
         return ret
 
+    def waitVoteStopTrigger(self):
+        while self.voteStopTriggerAndRes == False:
+            time.sleep(1)
+        ret = self.voteStopTriggerAndRes
+        self.voteStopTriggerAndRes = False
+        return ret
+
     def send2Audience(self, room_id):
         image_content = self.transmissionImageModel.PILimageToBase64(
             self.computerIOModel.screenshop()
@@ -73,3 +84,9 @@ class websocketClient(object):
 
     def rollCall(self):
         self.emit("rollCall", {"room_id": self.getRoomId()})
+
+    def voteStar(self):
+        self.emit("vote", {"action": "start", "room_id": self.getRoomId(), "vote_id": self.getVoteId()})
+
+    def voteStop(self):
+        self.emit("vote", {"action": "stop", "room_id": self.getRoomId(), "vote_id": self.getVoteId()})

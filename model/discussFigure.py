@@ -30,7 +30,7 @@ class discussFigure(object):
         explode = (0, 0.1)
         plt.pie(sizes, explode=explode, labels=labels, autopct=make_autopct(sizes), shadow=True, startangle=90)
         plt.axis('equal') # Equal aspect ratio
-        plt.show(block=False)
+        plt.show()
 
     def discussImage(self, image_path, word):
         class discussImageForm(wx.Frame):

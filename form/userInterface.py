@@ -35,8 +35,8 @@ class keybaord(wx.Frame):
         btn_2_e = wx.Button(self.panel, id=10, label='d', size=(80, 80))
         btn_3_a = wx.Button(self.panel, id=11, label='發作業', size=(80, 80))
         btn_3_b = wx.Button(self.panel, id=12, label='點名', size=(80, 80))
-        btn_3_c = wx.Button(self.panel, id=13, label='c', size=(80, 80))
-        btn_3_d = wx.Button(self.panel, id=14, label='d', size=(80, 80))
+        btn_3_c = wx.Button(self.panel, id=13, label='投票開始', size=(80, 80))
+        btn_3_d = wx.Button(self.panel, id=14, label='投票結束', size=(80, 80))
         btn_3_e = wx.Button(self.panel, id=15, label='結束', size=(80, 80))
         # Additional object
         btnsizer_1.Add(btn_1_a, 0)
@@ -76,11 +76,23 @@ class keybaord(wx.Frame):
             late = {"name": "late", "value": resp[0]["not_arrive_members"]}
             self.discussFigureModel.rollCall(present, late)
 
+        def voteStar(event):
+            self.websocketClientModel.createVote()
+            self.websocketClientModel.voteStar()
+
+        def voteEnd(envet):
+            self.websocketClientModel.voteStop()
+            resp = self.websocketClientModel.waitVoteStopTrigger()
+            print("asdf%s"%resp)
+            self.discussFigureModel.vote({"name":"O","value": int(resp[0][0]["item1"])}, {"name":"X","value": int(resp[0][1]["item2"])})
+
         def clientThreadStop(event):
             self.websocketClientModel.threadStop()
 
         btn_3_a.Bind(wx.EVT_LEFT_DOWN, send2Audience)
         btn_3_b.Bind(wx.EVT_LEFT_DOWN, rollCall)
+        btn_3_c.Bind(wx.EVT_LEFT_DOWN, voteStar)
+        btn_3_d.Bind(wx.EVT_LEFT_DOWN, voteEnd)
         btn_3_e.Bind(wx.EVT_LEFT_DOWN, clientThreadStop)
 
         return
