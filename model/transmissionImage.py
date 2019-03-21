@@ -6,7 +6,7 @@ class transmissionImage(object):
         pass
 
     def base64ToImage(self, image_content):
-        with open("imageToSave.jpg", "wb") as fh:
+        with open("../res/imageToSave.jpg", "wb") as fh:
             fh.write(base64.decodebytes(image_content.encode()))
 
     def PILimageToBase64(self, image):

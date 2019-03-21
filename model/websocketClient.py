@@ -20,6 +20,7 @@ class websocketClient(object):
         self.thread_running = True
         self.rollCallTriggerAndRes = False
         self.voteStopTriggerAndRes = False
+        self.discussImageTriggerAndRes = False
         print("websocketClient is running url: %s, port: %s, room_id: %s" %(url, port, room_id))
 
     def emit(self, on_content, value=None):
@@ -52,10 +53,14 @@ class websocketClient(object):
         def vote_response(*args):
             print(args)
             self.voteStopTriggerAndRes = args
+        def discussImage_response(*args):
+            print(args)
+            self.discussImageTriggerAndRes = args
         while self.thread_running:
             self.socketIO.on('screenshop_requests', screenshop_requests)
             self.socketIO.on('rollCall_response', rollCall_response)
             self.socketIO.on('vote_response', vote_response)
+            self.socketIO.on('discussImage_response', discussImage_response)
             self.socketIO.wait(seconds=3)
         return
 
@@ -76,6 +81,13 @@ class websocketClient(object):
         self.voteStopTriggerAndRes = False
         return ret
 
+    def waitDiscussImageTrigger(self):
+        while self.discussImageTriggerAndRes == False:
+            time.sleep(1)
+        ret = self.discussImageTriggerAndRes
+        self.discussImageTriggerAndRes = False
+        return ret
+
     def send2Audience(self, room_id):
         image_content = self.transmissionImageModel.PILimageToBase64(
             self.computerIOModel.screenshop()
@@ -90,3 +102,6 @@ class websocketClient(object):
 
     def voteStop(self):
         self.emit("vote", {"action": "stop", "room_id": self.getRoomId(), "vote_id": self.getVoteId()})
+
+    def discussImage(self):
+        self.emit("discussImage", {"room_id": self.getRoomId()})

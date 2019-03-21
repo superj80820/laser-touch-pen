@@ -3,6 +3,7 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from model.websocketClient import websocketClient
 from model.discussFigure import discussFigure
+from model.transmissionImage import transmissionImage
 import threading
 import wx
 import wx.lib.scrolledpanel
@@ -11,6 +12,7 @@ class keybaord(wx.Frame):
     def __init__(self, parent):
         super(keybaord, self).__init__(parent, title = "keybaord", style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP, size=(420, 290))
         ### variable ###
+        self.transmissionImageModel = transmissionImage()
         self.websocketClientModel = websocketClient("123456")
         self.discussFigureModel = discussFigure()
         self.websocketClientModel.emit("create_room", self.websocketClientModel.getRoomId())
@@ -27,7 +29,7 @@ class keybaord(wx.Frame):
         btn_1_b = wx.Button(self.panel, id=2, label='b', size=(80, 80))
         btn_1_c = wx.Button(self.panel, id=3, label='c', size=(80, 80))
         btn_1_d = wx.Button(self.panel, id=4, label='d', size=(80, 80))
-        btn_1_e = wx.Button(self.panel, id=5, label='d', size=(80, 80))
+        btn_1_e = wx.Button(self.panel, id=5, label='結束', size=(80, 80))
         btn_2_a = wx.Button(self.panel, id=6, label='a', size=(80, 80))
         btn_2_b = wx.Button(self.panel, id=7, label='b', size=(80, 80))
         btn_2_c = wx.Button(self.panel, id=8, label='c', size=(80, 80))
@@ -37,7 +39,7 @@ class keybaord(wx.Frame):
         btn_3_b = wx.Button(self.panel, id=12, label='點名', size=(80, 80))
         btn_3_c = wx.Button(self.panel, id=13, label='投票開始', size=(80, 80))
         btn_3_d = wx.Button(self.panel, id=14, label='投票結束', size=(80, 80))
-        btn_3_e = wx.Button(self.panel, id=15, label='結束', size=(80, 80))
+        btn_3_e = wx.Button(self.panel, id=15, label='討論', size=(80, 80))
         # Additional object
         btnsizer_1.Add(btn_1_a, 0)
         btnsizer_1.Add(btn_1_b, 0)
@@ -86,14 +88,21 @@ class keybaord(wx.Frame):
             print("asdf%s"%resp)
             self.discussFigureModel.vote({"name":"O","value": int(resp[0][0]["item1"])}, {"name":"X","value": int(resp[0][1]["item2"])})
 
+        def discussImage(event):
+            self.websocketClientModel.discussImage()
+            resp = self.websocketClientModel.waitDiscussImageTrigger()
+            self.transmissionImageModel.base64ToImage(resp[0])
+            self.discussFigureModel.discussImage("../res/imageToSave.jpg", resp[1])
+
         def clientThreadStop(event):
             self.websocketClientModel.threadStop()
 
+        btn_1_e.Bind(wx.EVT_LEFT_DOWN, clientThreadStop)
         btn_3_a.Bind(wx.EVT_LEFT_DOWN, send2Audience)
         btn_3_b.Bind(wx.EVT_LEFT_DOWN, rollCall)
         btn_3_c.Bind(wx.EVT_LEFT_DOWN, voteStar)
         btn_3_d.Bind(wx.EVT_LEFT_DOWN, voteEnd)
-        btn_3_e.Bind(wx.EVT_LEFT_DOWN, clientThreadStop)
+        btn_3_e.Bind(wx.EVT_LEFT_DOWN, discussImage)
 
         return
 
