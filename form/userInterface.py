@@ -1,4 +1,7 @@
 #!/usr/bin/python
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from model.websocketClient import websocketClient
 import wx
 import wx.lib.scrolledpanel
 
@@ -6,6 +9,8 @@ class keybaord(wx.Frame):
     def __init__(self, parent):
         super(keybaord, self).__init__(parent, title = "keybaord", style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP, size=(420, 290))
         ### variable ###
+        self.websocketClientModel = websocketClient("123456")
+        self.websocketClientModel.emit("create_room", self.websocketClientModel.getRoomId())
 
         ### layout ###
         self.panel = wx.Panel(self, wx.ID_ANY)
@@ -23,7 +28,7 @@ class keybaord(wx.Frame):
         btn_2_c = wx.Button(self.panel, id=8, label='c', size=(80, 80))
         btn_2_d = wx.Button(self.panel, id=9, label='d', size=(80, 80))
         btn_2_e = wx.Button(self.panel, id=10, label='d', size=(80, 80))
-        btn_3_a = wx.Button(self.panel, id=11, label='a', size=(80, 80))
+        btn_3_a = wx.Button(self.panel, id=11, label='發作業', size=(80, 80))
         btn_3_b = wx.Button(self.panel, id=12, label='b', size=(80, 80))
         btn_3_c = wx.Button(self.panel, id=13, label='c', size=(80, 80))
         btn_3_d = wx.Button(self.panel, id=14, label='d', size=(80, 80))
@@ -52,7 +57,10 @@ class keybaord(wx.Frame):
         self.Show()
 
         ### logic ###
-        # btn_1_a.Bind(wx.EVT_LEFT_DOWN, demoMat)
+        def send2Audience(event, room_id=self.websocketClientModel.getRoomId()):
+            self.websocketClientModel.send2Audience(room_id)
+
+        btn_3_a.Bind(wx.EVT_LEFT_DOWN, send2Audience)
 
         return
 

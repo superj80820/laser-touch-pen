@@ -29,7 +29,7 @@ class TestStringMethods(unittest.TestCase):
     #     self.websocketClientModel.thread()
 
     # def test_send2Audience(self):
-    #     self.websocketClientModel.send2Audience("send2Audience", self.websocketClientModel.getRoomId())
+    #     self.websocketClientModel.send2Audience(self.websocketClientModel.getRoomId())
 
     def test_rollCall(self):
         self.websocketClientModel.emit("create_room", self.websocketClientModel.getRoomId())
