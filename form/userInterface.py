@@ -52,7 +52,7 @@ class keybaord(wx.Frame):
         self.Show()
 
         ### logic ###
-        btn_1_a.Bind(wx.EVT_LEFT_DOWN, demoMat)
+        # btn_1_a.Bind(wx.EVT_LEFT_DOWN, demoMat)
 
         return
 
