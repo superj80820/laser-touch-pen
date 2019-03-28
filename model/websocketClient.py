@@ -7,11 +7,10 @@ import threading
 from socketIO_client import SocketIO, LoggingNamespace
 import random
 import time
+import keyboard
 
 class websocketClient(object):
-    def __init__(self, room_id=None):
-        url = 'localhost'
-        port = 5000
+    def __init__(self, room_id=None, url="localhost", port=5000):
         self.socketIO = SocketIO(url, port, LoggingNamespace)
         self.computerIOModel = computerIO()
         self.transmissionImageModel = transmissionImage()
@@ -56,6 +55,7 @@ class websocketClient(object):
         def discussImage_response(*args):
             print(args)
             self.discussImageTriggerAndRes = args
+
         while self.thread_running:
             self.socketIO.on('screenshop_requests', screenshop_requests)
             self.socketIO.on('rollCall_response', rollCall_response)

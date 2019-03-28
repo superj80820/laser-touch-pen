@@ -7,13 +7,17 @@ from model.transmissionImage import transmissionImage
 import threading
 import wx
 import wx.lib.scrolledpanel
+import keyboard
+import time
+import subprocess
 
 class keybaord(wx.Frame):
     def __init__(self, parent):
         super(keybaord, self).__init__(parent, title = "keybaord", style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP, size=(420, 290))
         ### variable ###
+        subprocess.Popen("../res/PointofixPortable/Pointofix.exe", stderr=subprocess.PIPE)
         self.transmissionImageModel = transmissionImage()
-        self.websocketClientModel = websocketClient("123456")
+        self.websocketClientModel = websocketClient("123456", url="192.168.43.87", port=5000)
         self.discussFigureModel = discussFigure()
         self.websocketClientModel.emit("create_room", self.websocketClientModel.getRoomId())
         t = threading.Thread(target = self.websocketClientModel.thread)
@@ -25,16 +29,16 @@ class keybaord(wx.Frame):
         btnsizer_1 = wx.BoxSizer(wx.HORIZONTAL)
         btnsizer_2 = wx.BoxSizer(wx.HORIZONTAL)
         btnsizer_3 = wx.BoxSizer(wx.HORIZONTAL)
-        btn_1_a = wx.Button(self.panel, id=1, label='a', size=(80, 80))
-        btn_1_b = wx.Button(self.panel, id=2, label='b', size=(80, 80))
-        btn_1_c = wx.Button(self.panel, id=3, label='c', size=(80, 80))
-        btn_1_d = wx.Button(self.panel, id=4, label='d', size=(80, 80))
+        btn_1_a = wx.Button(self.panel, id=1, label='選擇視窗', size=(80, 80))
+        btn_1_b = wx.Button(self.panel, id=2, label='上', size=(80, 80))
+        btn_1_c = wx.Button(self.panel, id=3, label='關閉視窗', size=(80, 80))
+        btn_1_d = wx.Button(self.panel, id=4, label='無', size=(80, 80))
         btn_1_e = wx.Button(self.panel, id=5, label='結束', size=(80, 80))
-        btn_2_a = wx.Button(self.panel, id=6, label='a', size=(80, 80))
-        btn_2_b = wx.Button(self.panel, id=7, label='b', size=(80, 80))
-        btn_2_c = wx.Button(self.panel, id=8, label='c', size=(80, 80))
-        btn_2_d = wx.Button(self.panel, id=9, label='d', size=(80, 80))
-        btn_2_e = wx.Button(self.panel, id=10, label='d', size=(80, 80))
+        btn_2_a = wx.Button(self.panel, id=6, label='左', size=(80, 80))
+        btn_2_b = wx.Button(self.panel, id=7, label='下', size=(80, 80))
+        btn_2_c = wx.Button(self.panel, id=8, label='右', size=(80, 80))
+        btn_2_d = wx.Button(self.panel, id=9, label='無', size=(80, 80))
+        btn_2_e = wx.Button(self.panel, id=10, label='無', size=(80, 80))
         btn_3_a = wx.Button(self.panel, id=11, label='發作業', size=(80, 80))
         btn_3_b = wx.Button(self.panel, id=12, label='點名', size=(80, 80))
         btn_3_c = wx.Button(self.panel, id=13, label='投票開始', size=(80, 80))
@@ -94,10 +98,45 @@ class keybaord(wx.Frame):
             self.transmissionImageModel.base64ToImage(resp[0])
             self.discussFigureModel.discussImage("../res/imageToSave.jpg", resp[1])
 
-        def clientThreadStop(event):
+        def exit(event):
             self.websocketClientModel.threadStop()
+            sys.exit(0)
 
-        btn_1_e.Bind(wx.EVT_LEFT_DOWN, clientThreadStop)
+        def windowsTab(event):
+            keyboard.press_and_release('windows+tab')
+
+        def up(event):
+            keyboard.press_and_release('alt+tab')
+            time.sleep(0.6)
+            keyboard.press_and_release('up')
+
+        def left(event):
+            keyboard.press_and_release('alt+tab')
+            time.sleep(0.6)
+            keyboard.press_and_release('left')
+
+        def down(event):
+            keyboard.press_and_release('alt+tab')
+            time.sleep(0.6)
+            keyboard.press_and_release('down')
+
+        def right(event):
+            keyboard.press_and_release('alt+tab')
+            time.sleep(0.6)
+            keyboard.press_and_release('right')
+
+        def closeWindow(event):
+            keyboard.press_and_release('alt+tab')
+            time.sleep(0.6)
+            keyboard.press_and_release('alt+f4')
+
+        btn_1_a.Bind(wx.EVT_LEFT_DOWN, windowsTab)
+        btn_1_b.Bind(wx.EVT_LEFT_DOWN, up)
+        btn_1_c.Bind(wx.EVT_LEFT_DOWN, closeWindow)
+        btn_1_e.Bind(wx.EVT_LEFT_DOWN, exit)
+        btn_2_a.Bind(wx.EVT_LEFT_DOWN, left)
+        btn_2_b.Bind(wx.EVT_LEFT_DOWN, down)
+        btn_2_c.Bind(wx.EVT_LEFT_DOWN, right)
         btn_3_a.Bind(wx.EVT_LEFT_DOWN, send2Audience)
         btn_3_b.Bind(wx.EVT_LEFT_DOWN, rollCall)
         btn_3_c.Bind(wx.EVT_LEFT_DOWN, voteStar)
@@ -130,27 +169,37 @@ class classNumber(wx.Frame):
     def getClassNumber(self):
         return str(12345)
 
-def showOnScreenRightButtom(window):
+def showOnScreenRightButtom(window, x_offset=0):
     dw, dh = wx.DisplaySize()
     w, h = window.GetSize()
-    x = dw - w
+    x = dw - w - x_offset
     y = dh - h
     window.SetPosition((x, y))
 
-def showAlignWindow(main_window ,align_window):
+def showAlignWindow(main_window ,align_window, x_offset):
     dw, dh = wx.DisplaySize()
     mw, mh = main_window.GetSize()
     aw, _ = align_window.GetSize()
-    x = dw - aw - mw
+    x = dw - aw - mw - x_offset
     y = dh - mh
     main_window.SetPosition((x, y))
 
-if __name__ == '__main__':
+def run():
     app = wx.PySimpleApp()
     keybaord_window = keybaord(None)
     class_number_window = classNumber(None)
-    showOnScreenRightButtom(keybaord_window)
-    showAlignWindow(class_number_window, keybaord_window)
+    showOnScreenRightButtom(keybaord_window, 90)
+    showAlignWindow(class_number_window, keybaord_window, 90)
+    keybaord_window.Show()
+    class_number_window.Show()
+    app.MainLoop()
+
+if __name__ == "__main__":
+    app = wx.PySimpleApp()
+    keybaord_window = keybaord(None)
+    class_number_window = classNumber(None)
+    showOnScreenRightButtom(keybaord_window, 90)
+    showAlignWindow(class_number_window, keybaord_window, 90)
     keybaord_window.Show()
     class_number_window.Show()
     app.MainLoop()

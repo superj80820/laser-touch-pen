@@ -10,6 +10,7 @@ import cv2
 import re
 import threading
 import math
+import userInterface
 
 class setConfig(wx.Frame):
     def __init__(self, parent):
@@ -208,6 +209,7 @@ class setConfig(wx.Frame):
     def startTracker(self, event):
         t = threading.Thread(target = self.trackerControlMouse)
         t.start()
+        userInterface.run()
 
 if __name__ == '__main__':
     processImageObject = processImage()
