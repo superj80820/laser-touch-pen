@@ -18,16 +18,26 @@ class discussFigure(object):
         plt.legend()
         plt.show()
 
-    def rollCall(self, present, absent, late, excused):
-        labels = ["present", "absent", "late", "excused"]
-        sizes = [present["value"], absent["value"], late["value"], excused["value"]]
-        explode = (0, 0.1, 0, 0) 
-
-        plt.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
+    def rollCall(self, present, late):
+        def make_autopct(values):
+            def my_autopct(pct):
+                total = sum(values)
+                val = int(round(pct*total/100.0))
+                return '{p:.2f}%  ({v:d})'.format(p=pct,v=val)
+            return my_autopct
+        labels = ["present", "late"]
+        sizes = [present["value"], late["value"]]
+        explode = (0, 0.1)
+        plt.pie(sizes, explode=explode, labels=labels, autopct=make_autopct(sizes), shadow=True, startangle=90)
         plt.axis('equal') # Equal aspect ratio
         plt.show()
 
     def discussImage(self, image_path, word):
+        def scale_bitmap(bitmap, width, height):
+            image = wx.ImageFromBitmap(bitmap)
+            image = image.Scale(width, height, wx.IMAGE_QUALITY_HIGH)
+            result = wx.BitmapFromImage(image)
+            return result
         class discussImageForm(wx.Frame):
             def __init__(self, parent, image_path, word):
                 super(discussImageForm, self).__init__(parent, title = "討論", style=wx.DEFAULT_FRAME_STYLE, size=(300, 80))
@@ -37,7 +47,9 @@ class discussFigure(object):
                 ### layout ###
                 self.panel = wx.Panel(self, wx.ID_ANY)
                 mastersizer = wx.BoxSizer(wx.VERTICAL)
-                self.image = wx.StaticBitmap(self.panel, -1, wx.Bitmap(image_path, wx.BITMAP_TYPE_ANY))
+                bitmap = wx.Bitmap(image_path)
+                bitmap = scale_bitmap(bitmap, 1200, 800)
+                self.image = wx.StaticBitmap(self.panel, -1, bitmap)
                 self.class_number = wx.StaticText(self.panel, label = word)
                 self.class_number.SetFont(wx.Font(30, wx.DECORATIVE, wx.NORMAL, wx.NORMAL))
                 
