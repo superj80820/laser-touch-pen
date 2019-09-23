@@ -13,11 +13,11 @@
 
 系統架構
 <br>
-<img src="https://github.com/superj80820/superj80820.github.io/blob/master/laser-touch-pen/laser-touch-pen-system.jpg" width="800">
+<img src="https://i.imgur.com/CIRQq4P.jpg" width="800">
 
 實際展示
 <br>
-<img src="https://github.com/superj80820/superj80820.github.io/blob/master/laser-touch-pen/laser-touch-pen-demo.gif" width="800">
+<img src="https://i.imgur.com/BPP1CSa.gif" width="800">
 
 ## 使用說明
 
